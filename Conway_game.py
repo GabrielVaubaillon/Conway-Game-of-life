@@ -7,25 +7,34 @@
 ###############################################################################
 ###     Settings :
 
+#On choisit la taille de la grille de jeu :
 cases_large = 125
 cases_haut = 90
+
+#La taille en pixel des cases
 cases_pixels = 10
 
-fichier_source = '3_28_11_12_23.cgol'
+#Le nom du fichier chargé lorsque l'on appuiera sur la touche adéquate
+fichier_source = '3_28_12_10_20.cgol'
 
-intervalle_evo = 0.0 #en secondes
+#L'intervalle minimum entre deux générations, en secondes :
+intervalle_evo = 0.0
 
-probabilite_alive = 0.25
-
+#le nombre de grilles maximum retenues en mémoire :
 taille_memoire = 1000
 
+#Lorsque l'on génère une grille aléatoire, la proba qu'une cellule soit en vie :
+probabilite_alive = 0.25
+
+#Apparence
+#La couleur des cellules, vivantes ou mortes :
 dead_color = (0,0,0)
 living_color = (255,255,255)
 
 
 
 ###############################################################################
-###     Imports des bibliotheques :
+###     imports :
 
 import time
 import random
@@ -35,7 +44,7 @@ from pygame.locals import *
 
 
 ###############################################################################
-###     Fonctions :
+###     Functions :
 
 
 def positif(n):
@@ -45,11 +54,14 @@ def positif(n):
 
 
 def case(pos):
+    """renvoie l'état de la case, si elle existe"""
+    #On teste si la cellule demandée existe :
     if pos[0] < 0 or pos[0] >= cases_haut or pos[1] < 0 or pos[1] >= cases_large:
-        return 0
+        return False
     return grid[ pos[0] ][ pos[1] ]
 
 def voisins_alive(pos):
+    """"retourne le nombre de voisins en vie"""
     nb_voisins_alive = 0
     l = pos[0]
     c = pos[1]
@@ -61,7 +73,9 @@ def voisins_alive(pos):
     return nb_voisins_alive
 
 def next_step(pos):
-    alive = case(pos) == 1
+    """détermine l'état d'une cellule pour la prochaine génération"""
+    #Il s'agit ici des regles de base du jeu de la vie
+    alive = case(pos)
     if (not alive) and voisins_alive(pos) == 3:
         next = True
     elif alive and voisins_alive(pos) in [2,3]:
@@ -71,6 +85,7 @@ def next_step(pos):
     return next
 
 def refresh():
+    """crée la grille de la génération suivante"""
     new_grid = []
     for i in range(cases_haut):
         ligne = []
@@ -80,6 +95,7 @@ def refresh():
     return new_grid[:]
 
 def init_grid():
+    """initialise une grille de la bonne taille"""
     new_grid = []
     for i in range(cases_haut):
         ligne = []
@@ -89,6 +105,7 @@ def init_grid():
     return new_grid
 
 def affiche_str():
+    """affiche la grille sous forme de cractere, dans la console"""
     for i in range(cases_haut):
         for j in range(cases_large):
             pos = (i,j)
@@ -100,6 +117,8 @@ def affiche_str():
     print()
 
 def affiche():
+    """affiche correctement l'état actuel de la grille
+    dans la fenetre, avec les bonnes couleurs"""
     #affiche_str()
     for i in range(cases_haut):
         for j in range(cases_large):
@@ -113,15 +132,18 @@ def affiche():
     pygame.display.flip()
 
 def whereiam(pixel_position):
+    """retourne la position dans la grille en fonction de la position en pixel"""
     return (pixel_position[1] // cases_pixels, pixel_position[0] // cases_pixels)
 
 def flipItPlease(pos):
+    """change l'état d'une cellule"""
     if case(pos):
         grid[ pos[0] ][ pos[1] ] = False
     else:
         grid[ pos[0] ][ pos[1] ] = True
 
 def randomized():
+    """"génère une grille aléatoire"""
     new_grid = []
     for i in range(cases_haut):
         ligne = []
@@ -135,6 +157,7 @@ def randomized():
     return new_grid
 
 def symetric_horizontal():
+    """réalise une symétrie de la partie gauche de la grille"""
     new_grid1 = []
     new_grid2 = []
     for i in range(cases_haut // 2):
@@ -156,6 +179,7 @@ def symetric_horizontal():
 
 
 def symetric_vertical():
+    """réalise une symétrie de la partie haute de la grille"""
     new_grid = []
     for i in range(cases_haut):
         ligne1 = []
@@ -171,17 +195,20 @@ def symetric_vertical():
     return new_grid
 
 def init_memoire():
+    """crée la liste pour stocker les grilles succésives, la mémoire"""
     memory = []
     for i in range(taille_memoire):
         memory.append(grid[:])
     return memory
 
 def memory():
+    """ajoute la grille actuelle dans la mémoire """
     global past
     past = past[1:]
     past.append(grid[:])
 
 def save_grid(grid):
+    """permet de sauvegarder une grille dans un fichier"""
     L = time.localtime()
     name = str(L[1]) + "_" + str(L[2]) + "_" + str(L[3]) + "_" + str(L[4]) + "_" + str(L[5]) + ".cgol"
     f = open(name, "w")
@@ -199,6 +226,7 @@ def save_grid(grid):
     print("Position sauvegardée")
 
 def grid_from_file(fichier):
+    """lit un fichier et crée la grille de jeu associée"""
     f = open(fichier, 'r')
     lignes = f.readlines()
     f.close()
@@ -213,42 +241,56 @@ def grid_from_file(fichier):
         new_grid.append(new_ligne[:])
     return new_grid
 
+###############################################################################
+###     Code executé :
+
+#Initialisation de la fenetre :
 largeur_pixel = cases_large * cases_pixels
 hauteur_pixel = cases_haut * cases_pixels
 
 pygame.init()
-fenetre = pygame.display.set_mode((largeur_pixel,hauteur_pixel))
+fenetre = pygame.display.set_mode((largeur_pixel, hauteur_pixel))
 
+
+#On initialise les images pour les cellules :
 living_cell = pygame.Surface((cases_pixels,cases_pixels))
 living_cell.fill(living_color)
 
 dead_cell = pygame.Surface((cases_pixels, cases_pixels))
 dead_cell.fill(dead_color)
 
+#permet de rester appuyé sur une touche
 pygame.key.set_repeat(1000,100)
 
+#Pour changer la vitesse sans perdre la valeur par défaut :
+changed_intervalle_evo = intervalle_evo
+
+#On initialise une grille vide
 grid = init_grid()
 
+#Le jeu ne se lance pas tout de suite
 pause = True
-changed_intervalle_evo = intervalle_evo
-n = 0
-pos_temporelle = 0
-past = init_memoire()
+pos_temporelle = 0 #Notre position dans l'historique
+past = init_memoire() #On initialise la mémoire
 
-continuer = True
 end_gen = time.time()
+#La condition de boucle :
+continuer = True
 while continuer:
 
     if not pause:
-        #test = time.time()
+        #On génere la nouvelle grille :
         grid = refresh()
-        #print(time.time() - test)
 
+        #On stocke la nouvelle grille dans la mémoire :
         memory()
 
+        #On attend le temps qu'il faut avant la prochaine génération
+        #en prenant en compte le temps de calcul
         time_to_wait = positif(changed_intervalle_evo - (time.time() - end_gen))
         time.sleep(time_to_wait)
 
+        #On affiche la grille :
         affiche()
 
 
@@ -333,7 +375,6 @@ while continuer:
 
 
     end_gen = time.time()
-    n += 1
 
 
 ###     Fin du fichier
