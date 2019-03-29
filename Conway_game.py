@@ -227,39 +227,18 @@ def save_grid(grid):
 
 def grid_from_file(fichier):
     """lit un fichier et crée la grille de jeu associée"""
-    f = open(fichier, 'r')
+    f= open(fichier, 'r')
     lignes = f.readlines()
     f.close()
-    new_grid = []
-    for ligne in lignes:
-        new_ligne = []
-        for carac in ligne:
-            if carac in 'O0':
-                new_ligne.append(True)
+    hauteur = min(len(lignes), cases_haut)
+    for i in range(hauteur):
+        largeur = min(len(lignes[i]), cases_large)
+        for j in range(largeur):
+            if lignes[i][j] in 'O0':
+                grid[i][j] = True
             else:
-                new_ligne.append(False)
+                grid[i][j] = False
 
-        if len(new_ligne) > cases_large:
-            new_ligne = new_ligne[:cases_large]
-
-        elif len(new_ligne) < cases_large:
-            for i in range(cases_large - len(ligne)):
-                # TODO: il ne faut pas supprimer le reste de la grille :(
-                new_ligne.append(False)
-
-        new_grid.append(new_ligne[:])
-
-    if len(new_grid) > cases_haut:
-        new_grid = new_grid[:cases_haut]
-    elif len(new_grid) < cases_haut:
-        for i in range(cases_haut-len(new_grid)):
-            new_ligne = []
-            for j in range(cases_large):
-                # TODO: il ne faut pas supprimer le reste de la grille :(
-                new_ligne.append(False)
-            new_grid.append(new_ligne)
-
-    return new_grid
 
 
 ###############################################################################
@@ -414,7 +393,7 @@ while continuer:
 
             if event.key == K_w:
                 """création de la grille à partir d'un fichier"""
-                grid = grid_from_file(fichier_source)
+                grid_from_file(fichier_source)
                 affiche()
 
 
