@@ -15,10 +15,10 @@ cases_haut = 90
 cases_pixels = 10
 
 #Le nom du fichier chargé lorsque l'on appuiera sur la touche adéquate
-fichier_source = '3_28_12_10_20.cgol'
+fichier_source = 'canon.cgol'
 
 #L'intervalle minimum entre deux générations, en secondes :
-intervalle_evo = 0.0
+intervalle_gen = 0.0
 
 #le nombre de grilles maximum retenues en mémoire :
 taille_memoire = 1000
@@ -285,7 +285,7 @@ dead_cell.fill(dead_color)
 pygame.key.set_repeat(1000,100)
 
 #Pour changer la vitesse sans perdre la valeur par défaut :
-changed_intervalle_evo = intervalle_evo
+changed_intervalle_gen = intervalle_gen
 
 #On initialise une grille vide
 grid = init_grid()
@@ -311,7 +311,7 @@ while continuer:
 
         #On attend le temps qu'il faut avant la prochaine génération
         #en prenant en compte le temps de calcul
-        time_to_wait = positif(changed_intervalle_evo - (time.time() - start_time))
+        time_to_wait = positif(changed_intervalle_gen - (time.time() - start_time))
         time.sleep(time_to_wait)
 
         #On affiche la grille :
@@ -369,17 +369,17 @@ while continuer:
 
             if event.key == K_f:
                 """diminue le temps intergénération minimum"""
-                changed_intervalle_evo = round(changed_intervalle_evo - 0.02, 2)
-                if changed_intervalle_evo < 0:
-                    changed_intervalle_evo = 0.00
-                print(changed_intervalle_evo," secondes entre générétions")
+                changed_intervalle_gen = round(changed_intervalle_gen - 0.02, 2)
+                if changed_intervalle_gen < 0:
+                    changed_intervalle_gen = 0.00
+                print(changed_intervalle_gen," secondes entre générétions")
 
             if event.key == K_d:
                 """augmente le temps intergénération minimum"""
-                changed_intervalle_evo = round(changed_intervalle_evo + 0.02, 2)
-                if changed_intervalle_evo < 0:
-                    changed_intervalle_evo = 0.00
-                print(changed_intervalle_evo," secondes entre générétions")
+                changed_intervalle_gen = round(changed_intervalle_gen + 0.02, 2)
+                if changed_intervalle_gen < 0:
+                    changed_intervalle_gen = 0.00
+                print(changed_intervalle_gen," secondes entre générétions")
 
             if event.key == K_LEFT:
                 """historique"""
@@ -394,6 +394,7 @@ while continuer:
                     affiche()
 
             if event.key == K_RIGHT:
+                """historique"""
                 if pos_temporelle < 0:
                     pause = True
                     pos_temporelle += 1
@@ -403,7 +404,7 @@ while continuer:
             if event.key == K_z:
                 """Réinitialisation de la grille et de la vitesse"""
                 grid = init_grid()
-                changed_intervalle_evo = intervalle_evo
+                changed_intervalle_gen = intervalle_gen
                 pause = True
                 affiche()
 

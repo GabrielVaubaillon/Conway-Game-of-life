@@ -28,7 +28,8 @@ Personal project in python, feel free to use the code
 To change the size of the grid you need to change the "cases_haut" (height),"cases_large" (width) and "cases_pixels" (size of a cell in pixel) at the beginning of the program
 
 **Files** :
-Positions are saved in text files. To choose the file you want to charge you need to change "the fichier_source" at the beginning of the program
+Positions are saved in text files. To choose the file you want to charge you need to change the "fichier_source" at the beginning of the program
 
 **Time between generations** :
-The time between generation is the minimum time. Because if the computer take 1 seconde to generate the next step, you cant be faster.If the maths take too long, the next step will start immediatly The defaut value is at the beggining of the program : "intervalle_evo"
+The time between generation is the minimum time. Because if the computer take 1 seconde to generate the next step, you cant be faster than it. If the maths take too long, the next step will start immediatly.  
+The defaut value is at the beggining of the program : "intervalle_gen"
