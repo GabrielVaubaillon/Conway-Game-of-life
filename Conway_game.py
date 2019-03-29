@@ -238,11 +238,33 @@ def grid_from_file(fichier):
                 new_ligne.append(True)
             else:
                 new_ligne.append(False)
+
+        if len(new_ligne) > cases_large:
+            new_ligne = new_ligne[:cases_large]
+
+        elif len(new_ligne) < cases_large:
+            for i in range(cases_large - len(ligne)):
+                # TODO: il ne faut pas supprimer le reste de la grille :(
+                new_ligne.append(False)
+
         new_grid.append(new_ligne[:])
+
+    if len(new_grid) > cases_haut:
+        new_grid = new_grid[:cases_haut]
+    elif len(new_grid) < cases_haut:
+        for i in range(cases_haut-len(new_grid)):
+            new_ligne = []
+            for j in range(cases_large):
+                # TODO: il ne faut pas supprimer le reste de la grille :(
+                new_ligne.append(False)
+            new_grid.append(new_ligne)
+
     return new_grid
+
 
 ###############################################################################
 ###     Code executé :
+
 
 #Initialisation de la fenetre :
 largeur_pixel = cases_large * cases_pixels
@@ -273,12 +295,14 @@ pause = True
 pos_temporelle = 0 #Notre position dans l'historique
 past = init_memoire() #On initialise la mémoire
 
-end_gen = time.time()
 #La condition de boucle :
 continuer = True
 while continuer:
 
     if not pause:
+        #On regarde le temps avant le calcul, pour attendre le bon temps après
+        start_time = time.time()
+
         #On génere la nouvelle grille :
         grid = refresh()
 
@@ -287,20 +311,23 @@ while continuer:
 
         #On attend le temps qu'il faut avant la prochaine génération
         #en prenant en compte le temps de calcul
-        time_to_wait = positif(changed_intervalle_evo - (time.time() - end_gen))
+        time_to_wait = positif(changed_intervalle_evo - (time.time() - start_time))
         time.sleep(time_to_wait)
 
         #On affiche la grille :
         affiche()
 
-
+    #On interagit avec l'utilisateur :
     for event in pygame.event.get():
         if event.type == QUIT:
             continuer = False
 
         if event.type == MOUSEBUTTONDOWN:
             if event.button == 1:
+                """si l'utilisateur appuie sur une cellule elle change d'état"""
+                #On récupère la position de la cellule que l'on veut changer
                 position = whereiam(event.pos)
+                #On change l'état de la cellule :
                 flipItPlease(position)
                 affiche()
 
@@ -309,46 +336,60 @@ while continuer:
                 continuer = False
 
             if event.key == K_p:
+                """permet de mettre ou d'enlever la pause"""
                 pause = not pause
+                #lorsque l'on redémarre on se se remet à la bonne position
+                #de l'historique
                 if not pause:
                     pos_temporelle = 0
 
             if event.key == K_r:
+                """génere une grille aléatoire"""
                 grid = randomized()
                 memory()
                 affiche()
 
             if event.key == K_h:
+                """réalise une symétrie horizontale de la grille"""
                 grid = symetric_horizontal()
                 memory()
                 affiche()
 
             if event.key == K_g:
+                """réalise une symétrie verticale de la grille"""
                 grid = symetric_vertical()
                 memory()
                 affiche()
 
             if event.key == K_v:
+                """réinitialise la grille"""
                 grid = init_grid()
                 memory()
                 affiche()
 
             if event.key == K_f:
+                """diminue le temps intergénération minimum"""
                 changed_intervalle_evo = round(changed_intervalle_evo - 0.02, 2)
                 if changed_intervalle_evo < 0:
                     changed_intervalle_evo = 0.00
                 print(changed_intervalle_evo," secondes entre générétions")
 
             if event.key == K_d:
+                """augmente le temps intergénération minimum"""
                 changed_intervalle_evo = round(changed_intervalle_evo + 0.02, 2)
                 if changed_intervalle_evo < 0:
                     changed_intervalle_evo = 0.00
                 print(changed_intervalle_evo," secondes entre générétions")
 
             if event.key == K_LEFT:
+                """historique"""
+                #On vérifie que l'on n'est pas au bout de l'historique
                 if pos_temporelle > -taille_memoire + 1:
                     pause = True
                     pos_temporelle -= 1
+
+                    #On change la grille, parceque l'on peut repartir de
+                    #n'importe quelle position de l'historique :
                     grid = past[pos_temporelle -1]
                     affiche()
 
@@ -360,21 +401,20 @@ while continuer:
                     affiche()
 
             if event.key == K_z:
+                """Réinitialisation de la grille et de la vitesse"""
                 grid = init_grid()
                 changed_intervalle_evo = intervalle_evo
                 pause = True
-                n = 0
                 affiche()
 
             if event.key == K_s:
+                """sauvegarde de la grille dans un fichier"""
                 save_grid(grid)
 
             if event.key == K_w:
+                """création de la grille à partir d'un fichier"""
                 grid = grid_from_file(fichier_source)
                 affiche()
-
-
-    end_gen = time.time()
 
 
 ###     Fin du fichier
