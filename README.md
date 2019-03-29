@@ -1,8 +1,8 @@
 # Conway-Game-of-life
 Personal project in python, feel free to use the code
 
-##To use the program :
-###Basics :
+## To use the program :
+### Basics :
 
 **P** : pause/resume  
 **Left clic** : change the state of the clicked cell  
@@ -23,7 +23,7 @@ Personal project in python, feel free to use the code
 **S** : save the grid in a file  
 **W** : recreate a grid from the file (see "Files" in detailed section)  
 
-###Detailed :
+### Detailed :
 **Size of the grid** :
 To change the size of the grid you need to change the "cases_haut" (height),"cases_large" (width) and "cases_pixels" (size of a cell in pixel) at the beginning of the program
 
