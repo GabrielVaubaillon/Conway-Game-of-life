@@ -32,4 +32,4 @@ Positions are saved in text files. To choose the file you want to charge you nee
 
 **Time between generations** :
 The time between generation is the minimum time. Because if the computer take 1 seconde to generate the next step, you cant be faster than it. If the maths take too long, the next step will start immediatly.  
-The defaut value is at the beggining of the program : "intervalle_gen"
+The defaut value is at the beggining of the program : "default_time_gap"
