@@ -1,5 +1,6 @@
 # Conway-Game-of-life
-Personal project in python, feel free to use the code
+Personal project in python, feel free to use the code  
+Problems with some keyboards  
 
 ## To use the program :
 ### Basics :
