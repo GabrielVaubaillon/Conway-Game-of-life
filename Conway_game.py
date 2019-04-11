@@ -43,6 +43,15 @@ from pygame.locals import *
 #Controls keys :
 
 pause_key = K_p
+save_key = K_s
+load_key = K_w
+random_key = K_r
+erase_key = K_v
+restart_key = K_z
+fast_key = K_f
+slow_key = K_d
+symmetry_horizontal_key = K_h
+symmetry_vertical_key = K_g
 
 
 
@@ -376,31 +385,31 @@ while continuer:
                 if not pause:
                     pos_temporelle = 0
 
-            if event.key == K_r:
+            if event.key == random_key:
                 """génere une grille aléatoire"""
                 grid = randomized()#On génere la grille
                 memory()#On ajoute la grille à la mémoire
                 affiche()#On affiche la grille
 
-            if event.key == K_h:
+            if event.key == symmetry_horizontal_key:
                 """réalise une symétrie horizontale de la grille"""
                 grid = symetric_horizontal()#On génere la grille
                 memory()#On ajoute la grille à la mémoire
                 affiche()#On affiche la grille
 
-            if event.key == K_g:
+            if event.key == symmetry_vertical_key:
                 """réalise une symétrie verticale de la grille"""
                 grid = symetric_vertical()#On génere la grille
                 memory()#On ajoute la grille à la mémoire
                 affiche()#On affiche la grille
 
-            if event.key == K_v:
+            if event.key == erase_key:
                 """réinitialise la grille"""
                 grid = init_grid()#On vide la grille
                 memory()#On ajoute la grille à la mémoire
                 affiche()#On affiche la grille
 
-            if event.key == K_f:
+            if event.key == fast_key:
                 """diminue le temps intergénération minimum"""
                 #On arrondi pour éviter des flottants à rallonge
                 #Et on ne prend pas de nombres négatifs
@@ -408,7 +417,7 @@ while continuer:
                 #Petit message pour afficher la vitesse :
                 print(time_gap," secondes entre générétions")
 
-            if event.key == K_d:
+            if event.key == slow_key:
                 """augmente le temps intergénération minimum"""
                 time_gap = positif(round(time_gap + 0.02, 2))
                 #Petit message pour afficher la vitesse :
@@ -440,7 +449,7 @@ while continuer:
                     grid = past[pos_temporelle -1]
                     affiche()
 
-            if event.key == K_z:
+            if event.key == restart_key:
                 """Réinitialisation de la grille et de la vitesse"""
                 grid = init_grid() #On réinitialise la grille
                 time_gap = default_time_gap #On réinitialise la vitesse
@@ -448,11 +457,11 @@ while continuer:
                 affiche() #On affiche le nouveau jeu :)
                 memory()#Nota bene : On ne réinitialise pas la mémoire
 
-            if event.key == K_s:
+            if event.key == save_key:
                 """sauvegarde de la grille dans un fichier"""
                 save_grid(grid)
 
-            if event.key == K_w:
+            if event.key == load_key:
                 """création de la grille à partir d'un fichier"""
                 #La procédure modifie directement la grille
                 grid_from_file(fichier_source)
