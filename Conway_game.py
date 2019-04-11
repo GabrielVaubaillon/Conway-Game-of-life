@@ -31,8 +31,6 @@ probabilite_alive = 0.25
 dead_color = (0,0,0)
 living_color = (255,255,255)
 
-
-
 ###############################################################################
 ###     imports :
 
@@ -42,6 +40,12 @@ import random
 import pygame
 from pygame.locals import *
 
+#Controls keys :
+
+pause_key = K_p
+
+
+
 
 ###############################################################################
 ###     Functions :
@@ -49,7 +53,7 @@ from pygame.locals import *
 
 def positif(n):
     if n < 0:
-        #On retourne un nombre du même type que cxelui passé en entrée
+        #On retourne un nombre du même type que celui passé en entrée
         if type(n) == int :
             return 0
         else:
@@ -361,10 +365,10 @@ while continuer:
 
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
-                #On peut quitter le programme en appuyant sur échap 
+                #On peut quitter le programme en appuyant sur échap
                 continuer = False
 
-            if event.key == K_p:
+            if event.key == pause_key:
                 """permet de mettre ou d'enlever la pause"""
                 pause = not pause
                 #lorsque l'on redémarre on se se remet à la bonne position
