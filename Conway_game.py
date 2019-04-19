@@ -62,34 +62,51 @@ symmetry_vertical_key = K_g
 
 def positif(n):
     if n < 0:
-        #On retourne un nombre du même type que celui passé en entrée
-        if type(n) == int :
-            return 0
-        else:
-            return 0.00
+        return 0
     return n
 
+def str_nb(n,taille = 2):
+    """écrit les nombres à la bonne taille, avec des 0 devant si ils sont trops courts"""
+    #TODO : une fonction qui marche pour n'importe quelle taille
+    ch = str(n)
+    if n < 10:
+        ch = '0' + ch
+    return ch
 
 def case(pos):
     """renvoie l'état de la case, si elle existe"""
+
     #On teste si la cellule demandée existe :
+    if pos[0] >= 0 and pos[0] < cases_haut and pos[1] >= 0 and pos[1] < cases_large:
+        return grid[ pos[0] ][ pos[1] ]
+    return False
+    #TODO : tester quelle méthode est plus rapide, et choisir. Si les temps sont semblables, on garde le deuxieme, plus logique
+    """
     if pos[0] < 0 or pos[0] >= cases_haut or pos[1] < 0 or pos[1] >= cases_large:
         return False
     #On retourne la valeur de la cellule
-    return grid[ pos[0] ][ pos[1] ]
+    return grid[ pos[0] ][ pos[1] ]"""
 
+
+def voisins(cell):
+    i = cell[0]
+    j = cell[1]
+    voisins = [(i-1 , j-1),
+        (i   , j-1),
+        (i+1 , j-1),
+        (i-1 , j),
+        (i+1 , j),
+        (i-1 , j+1),
+        (i   , j+1),
+        (i+1 , j+1)]
+    return voisins
 
 def voisins_alive(pos):
     """"retourne le nombre de voisins en vie"""
     nb_voisins_alive = 0
-    l = pos[0]
-    c = pos[1]
-    #On regarde le carré des cellules autours de la position donnée
-    for i in range(l - 1, l + 2):
-        for j in range(c - 1, c + 2):
-            position = (i,j)
-            if case(position) and position != pos :
-                nb_voisins_alive += 1
+    for cell in voisins(pos):
+        if case(cell):
+            nb_voisins_alive += 1
     return nb_voisins_alive
 
 
@@ -109,6 +126,7 @@ def next_step(pos):
 
 def refresh():
     """crée la grille de la génération suivante"""
+    #TODO regarder si il ne serait pas plus rapide de flipper les cases voulues plutot que de créer une nouvelle grille
     #On calcule la nouvelle grille à partir du nombre de voisins des cellules
     new_grid = []
     for i in range(cases_haut):
@@ -255,10 +273,13 @@ def save_grid(grid):
     #actuelle (année mois jour heure seconde)
     #On récupère la date :
     D = time.localtime()
-    name = str(D[1]) + str(D[2]) + str(D[3]) + str(D[4])+ str(D[5]) + ".cgol"
+
+    name = str(D[0]) + str_nb(D[1]) + str_nb(D[2]) + str_nb(D[3])+ str_nb(D[4]) + ".cgol"
+    print(name)
+
     f = open(name, "w")
     #On enregistre la grille dans une chaîne de caractere, '-' pour les cellules
-    #mortes, O pour les vivantes
+    #mortes, O pour les vivantes :
     ch = ''
     for i in range(cases_haut):
         for j in range(cases_large):
@@ -274,6 +295,7 @@ def save_grid(grid):
     print("Position sauvegardée")
 
 
+#TODO : ppouvoir charger un fichier au milieu de la grille
 def grid_from_file(fichier):
     """lit un fichier et crée la grille de jeu associée"""
     #On ouvre le fichier et on lit les lignes
@@ -295,6 +317,9 @@ def grid_from_file(fichier):
             else:
                 grid[i][j] = False
 
+def button_clik(pixel_pos):
+    cell = (pixel_pos[1] //cases_pixels, pixel_pos[0] //cases_pixels)
+    flipItPlease(cell)
 
 
 ###############################################################################
@@ -367,9 +392,7 @@ while continuer:
             if event.button == 1:
                 """si l'utilisateur appuie sur une cellule elle change d'état"""
                 #On récupère la position de la cellule que l'on veut changer
-                position = whereiam(event.pos)
-                #On change l'état de la cellule :
-                flipItPlease(position)
+                button_clik(event.pos)
                 affiche()
 
         if event.type == KEYDOWN:
