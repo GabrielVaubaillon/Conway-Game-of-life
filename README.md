@@ -23,7 +23,8 @@ Problems with some keyboards
 **H** : horizontal symmetry  
 
 **S** : save the grid in a file  
-**W** : recreate a grid from the file (see "Files" in detailed section)  
+**W** : load the file at the top left corner *(see "Files" in detailed section)*  
+**X** : load the file in the center of the grid  
 
 ### Detailed :
 **Size of the grid** :

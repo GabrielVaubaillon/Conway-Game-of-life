@@ -4,12 +4,13 @@
 ###             Conway Game of Life
 ###
 
-###############################################################################
+##############################################################################
 ###     Settings :
 
 #On choisit la taille de la grille de jeu :
 cases_large = 125
 cases_haut = 90
+#good settings for me : large = 125, haut = 90
 
 #La taille en pixel des cases
 cases_pixels = 10
@@ -45,6 +46,7 @@ from pygame.locals import *
 pause_key = K_p
 save_key = K_s
 load_key = K_w
+center_load_key = K_x
 random_key = K_r
 erase_key = K_v
 restart_key = K_z
@@ -52,8 +54,6 @@ fast_key = K_f
 slow_key = K_d
 symmetry_horizontal_key = K_h
 symmetry_vertical_key = K_g
-
-
 
 
 ###############################################################################
@@ -67,25 +67,17 @@ def positif(n):
 
 def str_nb(n,taille = 2):
     """écrit les nombres à la bonne taille, avec des 0 devant si ils sont trops courts"""
-    #TODO : une fonction qui marche pour n'importe quelle taille
     ch = str(n)
-    if n < 10:
+    while len(ch) < taille:
         ch = '0' + ch
     return ch
 
 def case(pos):
     """renvoie l'état de la case, si elle existe"""
-
     #On teste si la cellule demandée existe :
     if pos[0] >= 0 and pos[0] < cases_haut and pos[1] >= 0 and pos[1] < cases_large:
-        return grid[ pos[0] ][ pos[1] ]
+        return  grid[ pos[0] ][ pos[1] ]
     return False
-    #TODO : tester quelle méthode est plus rapide, et choisir. Si les temps sont semblables, on garde le deuxieme, plus logique
-    """
-    if pos[0] < 0 or pos[0] >= cases_haut or pos[1] < 0 or pos[1] >= cases_large:
-        return False
-    #On retourne la valeur de la cellule
-    return grid[ pos[0] ][ pos[1] ]"""
 
 
 def voisins(cell):
@@ -125,16 +117,14 @@ def next_step(pos):
 
 
 def refresh():
-    """crée la grille de la génération suivante"""
-    #TODO regarder si il ne serait pas plus rapide de flipper les cases voulues plutot que de créer une nouvelle grille
-    #On calcule la nouvelle grille à partir du nombre de voisins des cellules
-    new_grid = []
+    changements = []
     for i in range(cases_haut):
-        ligne = []
         for j in range(cases_large):
-            ligne.append( next_step((i,j)) )
-        new_grid.append(ligne)
-    return new_grid[:]
+            cell = (i,j)
+            if case(cell) != next_step(cell):
+                changements.append(cell)
+    for cell in changements:
+        flipItPlease(cell)
 
 
 def init_grid():
@@ -163,7 +153,7 @@ def affiche():
                 image = dead_cell
             pixel_position = (j* cases_pixels, i*cases_pixels)
             fenetre.blit(image, pixel_position)
-    #On actualise la fenetre
+    #On actualise la fenetreTODO
     pygame.display.flip()
 
 
@@ -250,7 +240,7 @@ def symetric_vertical():
 
 
 def init_memoire():
-    """crée la liste pour stocker les grilles succésives, la mémoire"""
+    """crée la liste pour stocker les grilles successives, la mémoire"""
     #on initialise la mémoire de la bonne taille :
     memory = []
     for i in range(taille_memoire):
@@ -261,10 +251,17 @@ def init_memoire():
 def memory():
     """ajoute la grille actuelle dans la mémoire """
     global past
+    #TODO : vérifier que cette fonction ne prend pas trop de temps à l'éxecution
     #On enlève la derniere position de la mémire
     past = past[1:]
     #On ajoute la nouvelle position :
-    past.append(grid[:])
+    past_grid = []
+    for ligne in grid:
+        new_ligne = []
+        for i in ligne:
+            new_ligne.append(i)
+        past_grid.append(new_ligne)
+    past.append(past_grid)
 
 
 def save_grid(grid):
@@ -295,7 +292,7 @@ def save_grid(grid):
     print("Position sauvegardée")
 
 
-#TODO : ppouvoir charger un fichier au milieu de la grille
+
 def grid_from_file(fichier):
     """lit un fichier et crée la grille de jeu associée"""
     #On ouvre le fichier et on lit les lignes
@@ -308,7 +305,9 @@ def grid_from_file(fichier):
     hauteur = min(len(lignes), cases_haut)
     for i in range(hauteur):
         #Comme au-dessus, mais pour la largeur
-        largeur = min(len(lignes[i]), cases_large)
+        #Il faut faire très attention au fait que le retour à la ligne compte
+        #Comme un caractere à part entière dans la taille de la ligne
+        largeur = min(len(lignes[i]) - 1, cases_large)
         for j in range(largeur):
             #On regarde si le fichier code une cellule vivant ou morte puis puis
             #on modifie directement la valeur dans la grille
@@ -317,8 +316,40 @@ def grid_from_file(fichier):
             else:
                 grid[i][j] = False
 
+def center_file(fichier):
+    """cette fonction permet de charger un fichier au centre de la grille."""
+
+    #On lit le fichier :
+    f = open(fichier, 'r')
+    lignes = f.readlines()
+    f.close()
+
+    #Afin d'être au centre il faut que l'on calcule le décalage du fichier par
+    #rapport aux bords de la grille :
+    hauteur = len(lignes)
+    decal_lignes = ((cases_haut - hauteur) // 2)
+
+    largeur = len(lignes[0]) - 1 #On enleve le retour à la ligne du compte
+    decal_colonnes = ((cases_large - largeur) // 2)
+
+    for i in range(hauteur):
+        for j in range(largeur):
+
+            pos = (i + decal_lignes , j + decal_colonnes)
+            #Il s'agit de la position de la grille  à laquelle on va faire
+            #correspondre la position (i,j) du fichier
+
+            #On vérifie que la case n'est pas en dehors de la grille
+            if pos[0] >= 0 and pos[0] < cases_haut and pos[1] >= 0 and pos[1] < cases_large:
+                #On écrit enfin le fichier sur la grille :
+                if lignes[i][j] in 'O0':
+                    grid[ pos[0] ][ pos[1] ] = True
+                else:
+                    grid[ pos[0] ][ pos[1] ] = False
+
+
 def button_clik(pixel_pos):
-    cell = (pixel_pos[1] //cases_pixels, pixel_pos[0] //cases_pixels)
+    cell = (pixel_pos[1] // cases_pixels, pixel_pos[0] // cases_pixels)
     flipItPlease(cell)
 
 
@@ -365,7 +396,7 @@ while continuer:
         start_time = time.time()
 
         #On génere la nouvelle grille :
-        grid = refresh()
+        refresh()
 
         #On stocke la nouvelle grille dans la mémoire :
         memory()
@@ -489,6 +520,12 @@ while continuer:
                 #La procédure modifie directement la grille
                 grid_from_file(fichier_source)
                 affiche()
+
+            if event.key == center_load_key:
+                center_file(fichier_source)
+                affiche()
+
+
 
 
 ###     Fin du fichier
