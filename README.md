@@ -1,5 +1,5 @@
 # Conway-Game-of-life
-Personal project in python, feel free to use the code  
+Personal project with python
 
 ## To use the program :  
 *( You can now remap the keys at the beginning of the program file )*
