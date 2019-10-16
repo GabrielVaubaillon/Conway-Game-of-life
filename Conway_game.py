@@ -153,7 +153,7 @@ def affiche():
                 image = dead_cell
             pixel_position = (j* cases_pixels, i*cases_pixels)
             fenetre.blit(image, pixel_position)
-    #On actualise la fenetreTODO
+    #On actualise la fenetre
     pygame.display.flip()
 
 
@@ -239,21 +239,15 @@ def symetric_vertical():
     return new_grid
 
 
-def init_memoire():
-    """crée la liste pour stocker les grilles successives, la mémoire"""
-    #on initialise la mémoire de la bonne taille :
-    memory = []
-    for i in range(taille_memoire):
-        memory.append(grid[:])
-    return memory
-
 
 def memory():
     """ajoute la grille actuelle dans la mémoire """
     global past
     #TODO : vérifier que cette fonction ne prend pas trop de temps à l'éxecution
-    #On enlève la derniere position de la mémire
-    past = past[1:]
+    if len(past) == taille_memoire:
+        #On enlève la derniere position de la mémoire
+        past = past[1:]
+
     #On ajoute la nouvelle position :
     past_grid = []
     for ligne in grid:
@@ -349,6 +343,8 @@ def center_file(fichier):
 
 
 def button_clik(pixel_pos):
+    """permet de changer l'état de la cellule sur laquelle on clique"""
+    #On récupère la position de la cellule touchée :
     cell = (pixel_pos[1] // cases_pixels, pixel_pos[0] // cases_pixels)
     flipItPlease(cell)
 
@@ -373,7 +369,7 @@ dead_cell = pygame.Surface((cases_pixels, cases_pixels))
 living_cell.fill(living_color)
 dead_cell.fill(dead_color)
 
-#permet de rester appuyé sur une touche
+#permet de laisser une touhe enfoncée
 pygame.key.set_repeat(1000,100)
 
 #Pour changer la vitesse sans perdre la valeur par défaut :
@@ -385,7 +381,7 @@ grid = init_grid()
 #Le jeu ne se lance pas tout de suite
 pause = True
 pos_temporelle = 0 #Notre position dans l'historique
-past = init_memoire() #On initialise la mémoire
+past = [] #On initialise la mémoire
 
 #La condition de boucle :
 continuer = True
@@ -480,7 +476,7 @@ while continuer:
             if event.key == K_LEFT:
                 """historique"""
                 #On vérifie que l'on n'est pas au bout de l'historique
-                if pos_temporelle > -taille_memoire + 1:
+                if pos_temporelle > -len(past) + 1:
                     #On met pause lorsque l'on se déplace dans l'historique
                     pause = True
                     #stocke notre position actuelle dans la mémoire
@@ -488,7 +484,7 @@ while continuer:
 
                     #On change la grille, parceque l'on peut repartir de
                     #n'importe quelle position de l'historique :
-                    grid = past[pos_temporelle -1]
+                    grid = past[pos_temporelle -1][:]
                     affiche()
 
             if event.key == K_RIGHT:
@@ -500,7 +496,7 @@ while continuer:
                     pause = True
                     #stocke notre position actuelle dans la mémoire
                     pos_temporelle += 1
-                    grid = past[pos_temporelle -1]
+                    grid = past[pos_temporelle -1][:]
                     affiche()
 
             if event.key == restart_key:
@@ -509,7 +505,7 @@ while continuer:
                 time_gap = default_time_gap #On réinitialise la vitesse
                 pause = True #On met pause
                 affiche() #On affiche le nouveau jeu :)
-                memory()#Nota bene : On ne réinitialise pas la mémoire
+                memory()#Note : On ne réinitialise pas la mémoire
 
             if event.key == save_key:
                 """sauvegarde de la grille dans un fichier"""
