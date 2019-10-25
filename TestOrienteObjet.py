@@ -23,9 +23,11 @@ pasChangementtimeGap= 0.02 #en secondes
 #La couleur des cellules, vivantes ou mortes :
 couleurMort = (0,0,0)
 couleurVie = (255,255,255)
-couleurQuadrillage = (50,50,50)
 
-afficheQuadrillage = False
+#La couleur du quadrillage :
+couleurQuadrillage = (50,50,50)
+#Faut il afficher le quadrillage :
+afficheQuadrillage = False #Possibilité de changer pendant l'execution du programme
 
 tailleMemoire = 1000
 #Nombre maximal de positions à conserver
@@ -56,8 +58,11 @@ loadMemoryPositionKey = K_w
 #qui semble ralentir considérablement les calculs (ou alors je l'utilisait
 #vraiment mal)
 
+#TODO : ajouter un fichier de configuration pour les constantes et les touches
 
-#Objets :
+#---------------------------------------
+#   Objets :
+#---------------------------------------
 class Case:
     def __init__(self,position):
         self.ligne = position[0] #int
@@ -146,8 +151,9 @@ class Case:
         #RETURN : boolean, la valeur de self.vivant
         return self.vivant
 
-
-#Fonctions secondaires :
+#---------------------------------------
+#   Fonctions secondaires :
+#---------------------------------------
 
 def supZero(x):
     #But de la fonction : si le nombre est négatif, on renvoie 0.0, sinon on
@@ -453,9 +459,9 @@ def changeSpeed(sens,gap):
 
 
 
-
-
-#Initialisation :
+#---------------------------------------
+#   Initialisation :
+#---------------------------------------
 largeurPixel = tailleCase * largeur
 hauteurPixel = tailleCase * hauteur
 
@@ -483,6 +489,10 @@ memoire = []
 timeGap = timeGapDefaut
 
 pause = True
+#---------------------------------------
+#   Corps du Programme :
+#---------------------------------------
+
 continuer = True
 while continuer:
     for event in pygame.event.get():
