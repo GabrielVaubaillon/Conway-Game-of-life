@@ -27,6 +27,9 @@ couleurQuadrillage = (50,50,50)
 
 afficheQuadrillage = False
 
+tailleMemoire = 1000
+#Nombre maximal de positions à conserver
+
 #Controls keys :
 
 pauseKey = K_p
@@ -41,9 +44,10 @@ slowerKey = K_d
 miroirHorizontalKey = K_h
 miroirVerticalKey = K_g
 afficheQuadrillageKey = K_l
-enterMemoryMode = K_m #TODO
-backInPastKey = K_LEFT #TODO
-backInFutureKey = K_RIGHT #TODO
+enterMemoryMode = K_m
+backInPastKey = K_LEFT
+backInFutureKey = K_RIGHT
+loadMemoryPositionKey = K_w #TODO
 
 # TODO: il faut rajouter la mémoire:
 #  -pour naviguer dans la mémoire on entrera en mode mémoire, où on ne fera
@@ -208,6 +212,42 @@ def gridFromFile(name,grille):
                 newLigne.append(False)
         grille.append(newLigne[:])
 
+def toBoolean(cases):
+    #But de la fonction : renvoyer une liste de booleens correspondant à l'etat
+    #   cases
+    #IN : cases, List of Case , la liste de toutes les cases
+    #Return : Une grille de l'état en utilisant des booleens
+    grille = []
+    for ligne in cases:
+        line = []
+        for case in ligne:
+            line.append(case.getState())
+        grille.append(line[:])
+    return grille
+
+def afficheEtatBool(etat , afficheGrille):
+    #But de la procedure : afficher un état à partir d'une grille de booleens
+    #IN : memoire
+    for ligne in range(hauteur):
+        for colonne in range(largeur):
+            if etat[ligne][colonne]:
+                skin = skinAlive
+            else:
+                skin = skinDead
+            positionPixel = posCoordToPixel( (ligne,colonne) )
+            fenetre.blit(skin , positionPixel)
+    if afficheGrille:
+        afficherQuadrillage()
+    pygame.display.flip()
+
+def setGridOn(cases, grille):
+    #But de la procedure : Mettre cases à jours à partir de la grille de booleen
+    #   donnée
+    #IN : grille
+    #IN-OUT : cases
+    for i in range(hauteur):
+        for j in range(largeur):
+            cases[i][j].setState(grille[i][j])
 
 #Fonctions Principales :
 
@@ -347,6 +387,61 @@ def chargeFileCenter(name, cases):
             if l >= 0 and l < hauteur and c >= 0 and c < largeur:
                 cases[l][c].setState(grille[i][j])
 
+def ajoutEtatMemoire(cases,memoire):
+    #But de la procédure : enregistrer l'état case dans la mémoire
+    #IN : case, list of Case, la liste des cases de l'état actuel
+    #IN-OUT : memoire, List of List of boolean
+    if len(memoire) >= tailleMemoire:
+        del memoire[0]
+    memoire.append(toBoolean(cases))
+
+def memoryMode(cases, memoire,afficheGrille):
+    #But de la procedure : On rentre en mode memoire, dans ce mode on peut
+    #   visionner les états précedents du jeu, puis si on le souhaite recharger
+    #   un etat précedent
+    #IN : memoire, la liste des états précédents
+    #   afficheGrille : Boolean, si il faut afficher la grille ou pas
+    #IN-OUT : cases, le nouvel état, si l'on souhaite charger un état précédent
+    #   L'état actuel sinon
+    #Return : continuer, boolean, si il faut continuer le programme
+
+    continuer = True
+
+    positionMemoire = len(memoire) - 1
+    #La position dans memoire où l'on est actuellement
+    finBoucle = False
+    while not finBoucle:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                finboucle = True
+                continuer = False
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    finBoucle = True
+                    continuer = False
+                if event.key == pauseKey:
+                    finBoucle = True
+                if event.key == afficheQuadrillageKey:
+                    afficheQuadrillage = not afficheQuadrillage
+                if event.key == backInFutureKey:
+                    if positionMemoire < len(memoire) - 1:
+                        positionMemoire += 1
+                        afficheEtatBool(memoire[ positionMemoire ] ,afficheGrille)
+                        #On ne raffraichi l'affichage que quand ça change
+                if event.key == backInPastKey:
+                    if positionMemoire > 0:
+                        positionMemoire -= 1
+                        afficheEtatBool(memoire[ positionMemoire ] ,afficheGrille)
+                        #On ne raffraichi l'affichage que quand ça change
+
+                if event.key == loadMemoryPositionKey:
+                    setGridOn(cases,memoire[positionMemoire])
+                    finBoucle = True
+    return continuer
+
+
+
+
 
 #Initialisation :
 largeurPixel = tailleCase * largeur
@@ -371,6 +466,7 @@ ligneHorizontale.fill(couleurQuadrillage)
 
 cases = []
 initCases(cases)
+memoire = []
 
 vitesse = vitesseDefaut
 
@@ -410,9 +506,13 @@ while continuer:
                 afficheQuadrillage = not afficheQuadrillage
             if event.key == centerLoadKey:
                 chargeFileCenter(fichierSource, cases)
+            if event.key == enterMemoryMode:
+                pause = True
+                continuer = memoryMode(cases,memoire,afficheQuadrillage)
 
     startTime = time.time()
     if not pause:
+        ajoutEtatMemoire(cases,memoire)
         etatSuivant(cases)
     affiche(cases, afficheQuadrillage)
     finalTime = (time.time() - startTime)
