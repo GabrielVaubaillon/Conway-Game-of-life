@@ -6,17 +6,17 @@ from pygame.locals import *
 
 largeur = 125
 hauteur = 90
-tailleCase = 10
+tailleCase = 10 #Largeur d'une case en pixel
 
 fichierSource = 'canon.cgol'
 #Le nom du fichier que l'on charge lorsque l'on appuie qur la touche adequate
 
 #Temps minimal entre les générations :
-vitesseDefaut = 0.0 #float en secondes
+timeGapDefaut = 0.0 #float en secondes
 #Il s'agit d'un temps minimal, parceque si l'ordinateur met trop de temps à
 #calculer, on ne pourra pas aller plus vite que lui
 
-pasChangementVitesse = 0.02 #en secondes
+pasChangementtimeGap= 0.02 #en secondes
 #Le pas de changement lorque l'on accelere ou ralenti le programme
 
 
@@ -38,7 +38,7 @@ loadKey = K_w
 centerLoadKey = K_x
 randomKey = K_r
 eraseKey = K_v
-vitesseDefautKey = K_c
+timeGapDefautKey = K_c
 fasterKey = K_f
 slowerKey = K_d
 miroirHorizontalKey = K_h
@@ -47,14 +47,7 @@ afficheQuadrillageKey = K_l
 enterMemoryMode = K_m
 backInPastKey = K_LEFT
 backInFutureKey = K_RIGHT
-loadMemoryPositionKey = K_w #TODO
-
-# TODO: il faut rajouter la mémoire:
-#  -pour naviguer dans la mémoire on entrera en mode mémoire, où on ne fera
-#       qu'afficher les états, il faudra ensuite appuyer sur une touche pour
-#       charger la position.
-#   -pour le stockage, je pense stocker les positions dans une liste de booléens
-#       ça permet d'etre moins lourd qu'avec les Case et plus facile à afficher
+loadMemoryPositionKey = K_w
 
 # TODO: Essayer d'accélerer le calcul de la position suivante : pour le moment
 #on calcule l'etat suivant pour chaque case, mais les seules cases à changer
@@ -422,7 +415,9 @@ def memoryMode(cases, memoire,afficheGrille):
                 if event.key == pauseKey:
                     finBoucle = True
                 if event.key == afficheQuadrillageKey:
-                    afficheQuadrillage = not afficheQuadrillage
+                    afficheGrille = not afficheGrille
+                    afficheEtatBool(memoire[ positionMemoire ] ,afficheGrille)
+                    #On ne raffraichi l'affichage que quand ça change
                 if event.key == backInFutureKey:
                     if positionMemoire < len(memoire) - 1:
                         positionMemoire += 1
@@ -438,6 +433,23 @@ def memoryMode(cases, memoire,afficheGrille):
                     setGridOn(cases,memoire[positionMemoire])
                     finBoucle = True
     return continuer
+
+
+def changeSpeed(sens,gap):
+    #But de la fonction : augmenter ou diminuer le temps entre deux états
+    #IN : sens : "faster" or "slower", sens de variation du temps
+    #     gap : float, le temps précedent
+    #RETURN : timeGap : le nouveaux temps entre les états
+    timeGap = gap
+    if sens == 'faster':
+        timeGap = supZero(timeGap - pasChangementtimeGap)
+    if sens == 'slower':
+        timeGap += pasChangementtimeGap
+
+    #Le quatre sert à ne pas trainer des nombres avec 45 chiffres
+    #après la virgule, il permet cependant d'avoir une assez bonne
+    #précision
+    return round( timeGap,4 )
 
 
 
@@ -468,7 +480,7 @@ cases = []
 initCases(cases)
 memoire = []
 
-vitesse = vitesseDefaut
+timeGap = timeGapDefaut
 
 pause = True
 continuer = True
@@ -497,11 +509,11 @@ while continuer:
             if event.key == saveKey:
                 saveState(cases)
             if event.key == fasterKey:
-                vitesse = supZero(round(vitesse - pasChangementVitesse,4))
+                timeGap = changeSpeed('faster',timeGap)
             if event.key == slowerKey:
-                vitesse = round(vitesse + pasChangementVitesse,4)
-            if event.key == vitesseDefautKey:
-                vitesse = vitesseDefaut
+                timeGap = changeSpeed('slower',timeGap)
+            if event.key == timeGapDefautKey:
+                timeGap = timeGapDefaut
             if event.key == afficheQuadrillageKey:
                 afficheQuadrillage = not afficheQuadrillage
             if event.key == centerLoadKey:
@@ -516,4 +528,4 @@ while continuer:
         etatSuivant(cases)
     affiche(cases, afficheQuadrillage)
     finalTime = (time.time() - startTime)
-    time.sleep(supZero(vitesse - finalTime))
+    time.sleep(supZero(timeGap - finalTime))
