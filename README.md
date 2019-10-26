@@ -1,7 +1,7 @@
 # Conway-Game-of-life
 
 ## Divers
-- programme écrit en python en utilisant la bibliotheque [Pygame](www.noLinkProvidedYet.com).
+- programme écrit en python en utilisant la bibliotheque [Pygame](https://www.pygame.org).
 - développé sur Manjaro-KDE, par un étudiant pour le loisir. Aucune garantie de fonctionnement correct sur votre machine.
 - README rédigé en avance sur la prochaine mise à jour. Le fichier *config.py* n'existe pas encore. Dans le reste de ce fichier lisez *config.py* comme "au début du programme".
 
