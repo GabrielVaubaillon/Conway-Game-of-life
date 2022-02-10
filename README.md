@@ -64,3 +64,5 @@
 - Mise en place d'un fichier séparé pour la configuration du programme
 - Choix multiple pour charger les fichiers
 - Meilleurs noms pour les fichiers
+
+
